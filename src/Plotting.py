@@ -49,17 +49,17 @@ def plot_generation_mix(hourly, path):
 
     bottom.stackplot(
         edges,
-        [_steps(hourly["share_" + technology]) * 100 for technology in _TECHNOLOGIES],
-        labels=[_LABELS[technology] for technology in _TECHNOLOGIES],
-        colors=[_COLOURS[technology] for technology in _TECHNOLOGIES],
+        [_steps(hourly["share_" + name]) * 100 for name in series],
+        labels=[_LABELS[name] for name in series],
+        colors=[_COLOURS[name] for name in series],
         step="post",
         edgecolor=_BACKGROUND,
         linewidth=0.4,
     )
     bottom.set_ylim(0, 100)
-    bottom.set_ylabel("% of generation")
+    bottom.set_ylabel("% of demand")
     bottom.set_xlabel("Hour")
-    bottom.set_title("Share of generation by technology", loc="left", color=_TEXT, fontsize=11)
+    bottom.set_title("Share of demand met by each technology", loc="left", color=_TEXT, fontsize=11)
     bottom.legend(loc="upper left", bbox_to_anchor=(1.005, 1), frameon=False, fontsize=9)
 
     for axes in (top, bottom):

@@ -20,23 +20,34 @@ def summarise(hourly):
         "mwh_curtailed": hourly["mwh_curtailed_wind"].sum() + hourly["mwh_curtailed_solar"].sum(),
     }
 
-    mwh_generated = sum(hourly["mwh_" + technology].sum() for technology in _TECHNOLOGIES)
+    mwh_demand = hourly["mwh_demand"].sum()
     for technology in _TECHNOLOGIES:
         mwh = hourly["mwh_" + technology].sum()
         summary["mwh_" + technology] = mwh
-        summary["share_" + technology] = mwh / mwh_generated
+        summary["share_" + technology] = mwh / mwh_demand
+    summary["share_unserved"] = hourly["mwh_unserved"].sum() / mwh_demand
     return pd.Series(summary)
 
 def write_excel(path, hourly, dispatch, summary):
-    hourly = hourly.copy()
-    summary = summary.copy()
-    for technology in _TECHNOLOGIES:
-        name = "share_" + technology
-        hourly[name] = (hourly[name] * 100).round(2)
-        summary[name] = round(summary[name] * 100, 2)
-
     with pd.ExcelWriter(path, engine="openpyxl") as writer:
         summary.to_frame("value").to_excel(writer, sheet_name="summary", index_label="metric")
         hourly.to_excel(writer, sheet_name="hourly")
-        dispatch.to_excel(writer, sheet_name="dispatch_mwh")
-        
+        dispatch.to_excel(writer, sheet_name="mwh_dispatch")
+
+        for sheet in writer.sheets.values():
+            for column in sheet.columns:
+                header = column[0]
+                sheet.column_dimensions[header.column_letter].width = max(12, len(str(header.value)) + 2)
+                for cell in column[1:]:
+                    if isinstance(cell.value, float):
+                        if str(header.value).startswith("share_"):
+                            cell.number_format = "0.00%"
+                        else:
+                            cell.number_format = "#,##0.00"
+
+        summary_sheet = writer.sheets["summary"]
+        summary_sheet.column_dimensions["A"].width = 36
+        summary_sheet.column_dimensions["B"].width = 16
+        for name_cell, value_cell in summary_sheet.iter_rows(min_row=2):
+            if str(name_cell.value).startswith("share_"):
+                value_cell.number_format = "0.00%"

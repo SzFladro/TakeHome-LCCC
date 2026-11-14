@@ -31,7 +31,6 @@ def simulate_market(data, price_cap=_PRICE_CAP):
             marginal = sorted({technology_of_unit[unit] for unit in result.marginal_units})
             price_setter = "+".join(marginal)
 
-        mwh_total = sum(mwh_generated.values())
         row = {
             "gas_price_pTherm": data.gas_price_pTherm.loc[hour],
             "mwh_demand": mwh_demand,
@@ -40,9 +39,11 @@ def simulate_market(data, price_cap=_PRICE_CAP):
         }
         for technology in _TECHNOLOGIES:
             row["mwh_" + technology] = mwh_generated[technology]
-        for technology in _TECHNOLOGIES:
-            row["share_" + technology] = mwh_generated[technology] / mwh_total if mwh_total > 0 else 0.0
         row["mwh_unserved"] = result.demand_left
+
+        for technology in _TECHNOLOGIES:
+            row["share_" + technology] = mwh_generated[technology] / mwh_demand if mwh_demand > 0 else 0.0
+        row["share_unserved"] = result.demand_left / mwh_demand if mwh_demand > 0 else 0.0
         for technology in (Technology.WIND, Technology.SOLAR):
             row["mwh_curtailed_" + technology] = mwh_available[technology] - mwh_generated[technology]
 
