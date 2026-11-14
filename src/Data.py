@@ -3,7 +3,7 @@ from pathlib import Path
 
 import pandas as pd
 
-from Models import Technology, RenewablePlant, GasPlant
+from src.Models import Technology, RenewablePlant, GasPlant
 
 _RENEWABLE_SHEETS = {Technology.WIND: "windplants", Technology.SOLAR: "solarplants"}
 _LOAD_FACTOR_SHEETS = {Technology.WIND: "wind_loadfactors", Technology.SOLAR: "solar_loadfactors"}

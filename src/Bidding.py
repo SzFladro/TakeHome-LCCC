@@ -1,4 +1,4 @@
-from Models import Technology, Bid
+from src.Models import Technology, Bid
 
 
 _THERMS_PER_MWH = 34.121
