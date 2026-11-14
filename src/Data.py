@@ -1,6 +1,4 @@
-from dataclasses import dataclass
 from pathlib import Path
-
 import pandas as pd
 
 from src.Models import Technology, RenewablePlant, GasPlant
@@ -9,18 +7,17 @@ _RENEWABLE_SHEETS = {Technology.WIND: "windplants", Technology.SOLAR: "solarplan
 _LOAD_FACTOR_SHEETS = {Technology.WIND: "wind_loadfactors", Technology.SOLAR: "solar_loadfactors"}
 
 
-@dataclass(frozen=True)
 class MarketData:
-    renewable_plants: tuple
-    gas_plants: tuple
-    load_factors: pd.DataFrame
-    mwh_demand: pd.Series
-    gas_price_pTherm: pd.Series
+    def __init__(self, renewable_plants, gas_plants, load_factors, mwh_demand, gas_price_pTherm):
+        self.renewable_plants = renewable_plants
+        self.gas_plants = gas_plants
+        self.load_factors = load_factors
+        self.mwh_demand = mwh_demand
+        self.gas_price_pTherm = gas_price_pTherm
 
     @property
     def hours(self):
         return self.mwh_demand.index
-
 
 def load_data(path):
     path = Path(path)

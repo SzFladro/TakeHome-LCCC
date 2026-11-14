@@ -1,11 +1,11 @@
-from dataclasses import dataclass
+_TOLERANCE = 1e-6
 
-@dataclass(frozen=True)
 class AuctionResult:
-    price: float
-    dispatch: dict
-    marginal_units: tuple
-    demand_left: float
+    def __init__(self, price, dispatch, marginal_units, demand_left):
+        self.price = price
+        self.dispatch = dispatch
+        self.marginal_units = marginal_units
+        self.demand_left = demand_left
 
 def clear_auction(bids, mwh_demand, price_cap):
     dispatch = {bid.unit: 0.0 for bid in bids}
@@ -22,12 +22,12 @@ def clear_auction(bids, mwh_demand, price_cap):
                same_price.append(bid)
        mwh_offered = sum(bid.mwh_quantity for bid in same_price)
 
-       if mwh_offered < mwh_remaining:
+       if mwh_offered < mwh_remaining - _TOLERANCE:
            for bid in same_price:
                dispatch[bid.unit] = bid.mwh_quantity
            mwh_remaining -= mwh_offered
        else:
-           share = mwh_remaining / mwh_offered
+           share = min(1.0,mwh_remaining / mwh_offered)
            for bid in same_price:
                dispatch[bid.unit] = bid.mwh_quantity * share
            marginal_units = tuple(bid.unit for bid in same_price)
